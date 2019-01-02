@@ -14,11 +14,16 @@ import (
 	"v2ray.com/core/proxy/vmess"
 )
 
+//GenerateUUID ...
+//	Create a random UUID in string
+//
 func GenerateUUID() string {
 	u := uuid.New()
 	return u.String()
 }
 
+//ServiceClient ...
+//  Struct holding the rpc client.
 type ServiceClient struct {
 	APIAddress  string
 	APIPort     uint32
@@ -27,7 +32,7 @@ type ServiceClient struct {
 }
 
 // NewServiceClient ...
-// Generate Stats service client obj
+// Create ServiceClient obj
 func NewServiceClient(addr string, port uint32) *ServiceClient {
 	cmdConn, err := grpc.Dial(fmt.Sprintf("%s:%d", addr, port), grpc.WithInsecure())
 	if err != nil {
@@ -42,6 +47,8 @@ func NewServiceClient(addr string, port uint32) *ServiceClient {
 	return &svr
 }
 
+//QueryStats ...
+// List all stats from v2ray. users didn't generate any traffic won't included.
 func (h *ServiceClient) QueryStats(pattern string, reset bool) map[string]int64 {
 	sresp, err := h.statClient.QueryStats(context.Background(), &statscmd.QueryStatsRequest{
 		Pattern: pattern,
@@ -61,6 +68,8 @@ func (h *ServiceClient) QueryStats(pattern string, reset bool) map[string]int64 
 	return result
 }
 
+//GetStats ...
+//  Get stats data of a sepecied item, key from QueryStats query.
 func (h *ServiceClient) GetStats(name string, reset bool) (string, int64) {
 	sresp, err := h.statClient.GetStats(context.Background(), &statscmd.GetStatsRequest{
 		Name:   name,
@@ -75,8 +84,9 @@ func (h *ServiceClient) GetStats(name string, reset bool) (string, int64) {
 	return sresp.Stat.Name, sresp.Stat.Value
 }
 
+// AddUser ...
+//   Add a user to an inbound on the fly. The effect is not permentnent.
 func (h *ServiceClient) AddUser(inboundTag string, email string, level uint32, uuid string, alterID uint32) {
-
 	resp, err := h.proxyClient.AlterInbound(context.Background(), &proxymancmd.AlterInboundRequest{
 		Tag: inboundTag,
 		Operation: serial.ToTypedMessage(&proxymancmd.AddUserOperation{
@@ -99,6 +109,8 @@ func (h *ServiceClient) AddUser(inboundTag string, email string, level uint32, u
 	}
 }
 
+// RemoveUser ...
+//   Remove a user from an Inbound on the fly. The effect is not permentnent.
 func (h *ServiceClient) RemoveUser(inboundTag string, email string) {
 	resp, err := h.proxyClient.AlterInbound(context.Background(), &proxymancmd.AlterInboundRequest{
 		Tag: inboundTag,
