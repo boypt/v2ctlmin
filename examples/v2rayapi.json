@@ -1,0 +1,82 @@
+{
+	"stats": {},
+	"api": {
+		"tag": "api",
+		"services": [
+			"HandlerService",
+			"LoggerService",
+			"StatsService"
+		]
+	},
+	"policy": {
+		"levels": {
+			"0": {
+				"statsUserUplink": true,
+				"statsUserDownlink": true
+			}
+		},
+		"system": {
+			"statsInboundUplink": true,
+			"statsInboundDownlink": true
+		}
+	},
+	"log": {
+		"loglevel": "debug"
+	},
+	"inbounds": [
+		{
+			"tag": "vmess",
+			"port": 10086,
+			"protocol": "vmess",
+			"settings": {
+				"clients": [
+					{
+						"level": 0,
+						"alterId": 64,
+						"id": "cc8d1343-447a-a2ad-401e-f4dc04956e27",
+						"email": "clients01@test.com"
+					},
+					{
+						"level": 0,
+						"alterId": 64,
+						"id": "0e054ed9-5af2-6302-b93b-e59b05fdb1b4",
+						"email": "clients02@test.com"
+					}
+				]
+			}
+		},
+		{
+			"tag": "api",
+			"listen": "127.0.0.1",
+			"port": 10085,
+			"protocol": "dokodemo-door",
+			"settings": {
+				"address": "127.0.0.1"
+			}
+		}
+	],
+	"outbounds": [
+		{
+			"tag": "direct",
+			"protocol": "freedom"
+		},
+		{
+			"tag": "block",
+			"protocol": "blackhole"
+		}
+	],
+	"routing": {
+		"settings": {
+			"rules": [
+				{
+					"inboundTag": [
+						"api"
+					],
+					"outboundTag": "api",
+					"type": "field"
+				}
+			]
+		},
+		"strategy": "rules"
+	}
+}
